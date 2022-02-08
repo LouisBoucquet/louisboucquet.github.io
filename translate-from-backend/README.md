@@ -187,7 +187,7 @@ This part is aimed specifically at angular developers, it leverages it's pipes (
 })
 export class TranslatePipe implements PipeTransform {
 	constructor(
-		private readonly translateService: ApiTranslater,
+		private readonly translater: ApiTranslater,
 		private readonly asyncPipe: AsyncPipe,
 	) {}
 
@@ -205,7 +205,7 @@ export class TranslatePipe implements PipeTransform {
 	): BackendTranslatedLocal<T> | null {
 		if (toTranslate === null || toTranslate === undefined) return null;
 
-		const translatedObservable$ = this.translateService.translate(toTranslate);
+		const translatedObservable$ = this.translater.translate(toTranslate);
 		const asyncResult = this.asyncPipe.transform(translatedObservable$);
 
 		return asyncResult;
