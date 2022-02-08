@@ -177,7 +177,7 @@ class ApiTranslater {
 
 ## `translate` pipe
 
-This part is aimed specifically to angular, it leverages it's pipes (not to be confused with rxjs pipes). We can make a pipe that translates an object directly within the html.
+This part is aimed specifically at angular developers, it leverages it's pipes (not to be confused with rxjs pipes). We can make a pipe that translates an object directly within the html.
 
 ```ts
 @Pipe({
