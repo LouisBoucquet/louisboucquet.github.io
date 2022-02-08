@@ -1,10 +1,12 @@
 # Dynamically translating json responses from an api
 
-I've encountered an api where all translations are given in the response json, so naturally I made a way to easily and dynamically get the right tag.
-It was important to me that the code was:
+Most http api's require you to specify the language in which in you want the result to be in.
+Some api's, however, give all languages.
+This article gives a few ways to deal with responses from such api's in a clean way, keeping following things in mind:
 
 * Easy to use
 * Dynamic (Selected tag updates if the chosen language updates)
+* Correct typing voor good intellisense
 
 This article requires basic knowledge of [rxjs](https://rxjs.dev).
 
