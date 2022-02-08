@@ -14,7 +14,7 @@ This article requires basic knowledge of [rxjs](https://rxjs.dev).
 
 Let's start by defining some types so we can see what we're working with.
 
-Incomming data:
+Incoming data:
 
 ```ts
 interface WithTranslations {
