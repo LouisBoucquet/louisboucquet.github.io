@@ -12,7 +12,7 @@ This article requires basic knowledge of [rxjs](https://rxjs.dev).
 
 ## Types
 
-Let's start by defining types so we can see what we're working with.
+Let's start by defining some types so we can see what we're working with.
 
 Incomming data:
 
@@ -24,7 +24,7 @@ interface WithTranslations {
 }
 ```
 
-This type describes an object from the api, and it contains all the supported languages.
+This type describes an object from the api and it contains all the supported languages.
 
 Transformed data:
 
@@ -37,7 +37,7 @@ type Translated<T extends WithTranslations> =
 
 There's a few things to unpack here:
 
-The type `Omit<T, Keys>` removes all the `Keys` from `T`. In this case we use it to remove all language-annotated labels, we won't need it anymore.
+The type `Omit<T, Keys>` removes all the `Keys` from `T`. In this case we use it to remove all language-annotated labels, we won't need them anymore.
 
 Once we removed all the labels we don't need, it's time to add one label which will contain the content of the label who's language is selected.
 
@@ -62,29 +62,29 @@ interface TranslatedEntity {
 }
 ```
 
-With the types defined we need to define a function to transform a `WithTranslations` type to a `Translated<T>` type.
+With the types defined we need to define a function to transform a `WithTranslations` type into a `Translated<T>` type.
 
 ## The translate function
 
 ### Setup
 
-Befor we can actually implement the `translate(...)` function, there's some setup needed.
+Before we can actually implement the `translate(...)` function, there's some setup needed.
 
-We can use a class to group other variables and functions we'll need.
-We'll need a variable `langMapper`, this maps a selected language to the corresponding label.
-We'll also need a `selectedLang$` observable.
+We can use a class to group variables and functions we'll need.
+We'll need a variable `langMapper`, this maps a language to it's corresponding label.
+We'll also need a `selectedLang$` observable, this contains the selcted language.
 
 ```ts
 type SupportedLang = 'en' | 'es' | /* ... other supported languages */;
 
 class ApiTranslater {
-	langMapper: Record<SupportedLang, keyof WithTranslations> = {
+	private langMapper: Record<SupportedLang, keyof WithTranslations> = {
 		en: 'labelEn',
 		es: 'labelEs',
 		/* ... other supported languages */
 	}
 
-	selectedLang$: Observable<SupportedLang> = /* ... */;
+	private selectedLang$: Observable<SupportedLang> = /* ... */;
 }
 ```
 
@@ -145,7 +145,7 @@ This means we don't need to know the selected language when calling the `transla
 
 ### Extra utility functions
 
-To facillitate every need we can define some extra utility functions.
+To facillitate every need, we can define some extra utility functions.
 
 ```ts
 class ApiTranslater {
@@ -175,7 +175,7 @@ class ApiTranslater {
 }
 ```
 
-`translateArray` translates an entire array. `translatePipe`, `translateArrayPipe` are "pipe" variations of existing functions.
+`translateArray` translates an entire array. `translatePipe` and `translateArrayPipe` are "pipe" variations of existing functions.
 
 ## `translate` pipe
 
@@ -213,24 +213,27 @@ export class TranslatePipe implements PipeTransform {
 }
 ```
 
-We inject the async pipe because you need to append the to an observable anyway, we might as well save the programmer some typing.
+We inject the async pipe because you need to append it to an observable anyway, we might as well do that here and save the programmer some typing.
 
 The pipe can be used in an angular template as follows:
 
 ```html
+{% raw %}
 <p>{{ (withTranslation | translate).label }}</p>
 <p>{{ (withTranslationOptional | translate)?.label }}</p>
+{% endraw %}
 ```
 
 ## Wrapping up
 
-We've seen how to take an object with labels in multiple languages and pick the right label based on the selected language.
-We did this while maintaing proper types and keeping the translation updated with the selected lang via an rxjs observable.
+We've seen how to take an object with labels in multiple languages and pick the right label based on a selected language.
+We did this while maintaing proper types and keeping the translation updated with the selected language via an rxjs observable.
 
-A lot of api's give (or even require) the user of the api to set a "language header".
+A lot of api's give (or even require) it's users to set a "language header".
+The api then returns data that has been translated in the backend.
 This has some benefits and drawbacks.
 
-* Receiving neatly translated data from an api means that code handling the data can be a lot simpler, no need to create translating functions when your data is already translated.
+* Receiving neatly translated data from an api means that the code handling the data can be a lot simpler, no need to create translating functions when your data is already translated.
 * Receiving every translation adds extra overhead to the api, depending on how many languages are supported this might become significant.
 * Receiving every translation gives the option to the receiver to switch translations on the fly without having to make a new (costly) call to the api.
 
