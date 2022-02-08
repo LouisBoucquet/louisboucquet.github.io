@@ -14,8 +14,8 @@ Incomming data:
 
 ```ts
 interface WithTranslations {
-	labelEn: string,
-	labelEs: string,
+	labelEn: string;
+	labelEs: string;
 	// All the languages you need ...
 }
 ```
@@ -41,9 +41,9 @@ Note that we omit the `keyof WithTranslations` keys and not `keyof T`. Because o
 
 ```ts
 interface Entity extends WithTranslations {
-	labelEn: string,
-	labelEs: string,
-	additionalField: string,
+	labelEn: string;
+	labelEs: string;
+	additionalField: string;
 }
 
 // This
@@ -53,8 +53,8 @@ type TranslatedEntity = Translate<Entity>;
 // Is equivalent to
 
 interface EnTranslatedEntitytity {
-	label: string,
-	additionalField: string,
+	label: string;
+	additionalField: string;
 }
 ```
 
