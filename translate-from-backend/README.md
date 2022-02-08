@@ -218,10 +218,8 @@ We inject the async pipe because you need to append it to an observable anyway, 
 The pipe can be used in an angular template as follows:
 
 ```html
-{% raw %}
-<p>{{ (withTranslation | translate).label }}</p>
-<p>{{ (withTranslationOptional | translate)?.label }}</p>
-{% endraw %}
+{% raw %}<p>{{ (withTranslation | translate).label }}</p>
+<p>{{ (withTranslationOptional | translate)?.label }}</p>{% endraw %}
 ```
 
 ## Wrapping up
