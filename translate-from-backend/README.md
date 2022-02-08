@@ -176,3 +176,60 @@ class ApiTranslater {
 `translateArray` translates an entire array. `translatePipe`, `translateArrayPipe` are "pipe" variations of existing functions.
 
 ## `translate` pipe
+
+This part is aimed specifically to angular, it leverages it's pipes (not to be confused with rxjs pipes). We can make a pipe that translates an object directly within the html.
+
+```ts
+@Pipe({
+	name: 'translate',
+})
+export class TranslatePipe implements PipeTransform {
+	constructor(
+		private readonly translateService: ApiTranslater,
+		private readonly asyncPipe: AsyncPipe,
+	) {}
+
+	// More specific typing
+	transform(toTranslate: null | undefined): null;
+	transform<T extends BackendTranslated>(
+		toTranslate: T,
+	): BackendTranslatedLocal<T>;
+	transform<T extends BackendTranslated>(
+		toTranslate: T | null | undefined,
+	): BackendTranslatedLocal<T> | null;
+
+	transform<T extends BackendTranslated>(
+		toTranslate: T | null | undefined,
+	): BackendTranslatedLocal<T> | null {
+		if (toTranslate === null || toTranslate === undefined) return null;
+
+		const translatedObservable$ = this.translateService.translate(toTranslate);
+		const asyncResult = this.asyncPipe.transform(translatedObservable$);
+
+		return asyncResult;
+	}
+}
+```
+
+We inject the async pipe because you need to append the to an observable anyway, we might as well save the programmer some typing.
+
+The pipe can be used in an angular template as follows:
+
+```html
+<p>{{ (withTranslation | translate).label }}</p>
+<p>{{ (withTranslationOptional | translate)?.label }}</p>
+```
+
+## Wrapping up
+
+We've seen how to take an object with labels in multiple languages and pick the right label based on the selected language.
+We did this while maintaing proper types and keeping the translation updated with the selected lang via an rxjs observable.
+
+A lot of api's give (or even require) the user of the api to set a "language header".
+This has some benefits and drawbacks.
+
+* Receiving neatly translated data from an api means that code handling the data can be a lot simpler, no need to create translating functions when your data is already translated.
+* Receiving every translation adds extra overhead to the api, depending on how many languages are supported this might become significant.
+* Receiving every translation gives the option to the receiver to switch translations on the fly without having to make a new (costly) call to the api.
+
+If you ever happen to cross an api that sends all translations you'll be better equiped to handle the responses.
