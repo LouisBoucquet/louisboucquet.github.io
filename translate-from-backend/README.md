@@ -6,7 +6,7 @@ This article gives a few ways to deal with responses from such api's in a clean 
 
 * Easy to use
 * Dynamic (Selected tag updates if the chosen language updates)
-* Correct typing voor good intellisense
+* Correct typing for good intellisense
 
 This article requires basic knowledge of [rxjs](https://rxjs.dev).
 
