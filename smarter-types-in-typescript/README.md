@@ -3,7 +3,7 @@
 ## What are types?
 
 What are types? It kind of depends on who you ask and what language they're using.
-To a C or Rust developer a type is propably closely tied to their memory model.
+To a C or Rust developer a type is probably closely tied to their memory model.
 For example a `Person` struct with a `name` and an `age` has to have x amount of bytes allocated to the `name` and y amount of bytes allocated to the `age`.
 Then, when getting a pointer and being told that that bit of memory "behaves" as that struct, a C programmer (or rather the compiler) can use that bit of memory as a `Person`.
 
@@ -15,13 +15,67 @@ Just like we could write assembly and manipulate memory and state directly, we c
 So why don't we?
 
 When writing assembly or javascript there's no compiler to tell us that "property `x` doesn't exist on type `Y`".
-So in escense, we use types so that the compiler can understand the code we write, help us understand the code and tell us when code we are writing is wrong in some way.
+So in essence, we use types so that the compiler can understand the code we write, help us understand the code and tell us when code we are writing is wrong in some way.
 
 Keeping in mind the goal of a type system we might create our types in such a way that gives the compiler a deeper understanding of our code base.
 The more the compiler knows about our code, the more it can help us prevent bugs.
 
 The rest of this talk will provide ways of letting the compiler do as much work for you as possible by providing the nescesarry type information.
 Examples are based on real production code bases.
+
+## Union types
+
+Typescript allows you to define "union types" which is a very powerful (and imo somewhat underused) feature.
+Union types are an enumeration of different types.
+When receiving such a type, the data could be in the form of any one of the enumerated types.
+When assigning a type to a union type the original type must be assignable to one of the enumerated types.
+
+```ts
+type ExampleUnionType = 'A' | 'B';
+
+function exampleFunction(value: ExampleUnionType) {
+	// value might be A or B
+}
+
+// compiles
+exampleFunction('A');
+// fails
+exampleFunction('C');
+```
+
+### type guards
+
+When a variable is in a "quantum" state there's not that much you can do with it.
+That's why typescript provides a few ways of narrowing down your type
+
+#### Simple `if` type guard
+#### `if` with return guard
+#### `if` with error guard
+#### Custom type guards
+##### `isNotNil` filter
+#### Exhaustive enum branching
+
+Now that we have a union type and a way to check its variations one by one, we need a way to check if we've had them all.
+I want, if I add an extra variant to my union type, that the compiler gives an error and shows me where I need to deal with this extra variant.
+
+```ts
+type SomeEnum = 'a' | 'b';
+
+function someFunction(someEnum: SomeEnum): number {
+	if (someEnum === 'a') return 1;
+	if (someEnum === 'b') return 2;
+	return assertNever(someEnum);
+}
+
+function assertNever(value: never): never {
+	throw new Error('Value was not `never`');
+}
+```
+
+You can define a util function `assertNever` to check that you already checked every branch of a type's variations.
+The function `assertNever` takes an argument with the `never` type.
+This way typescript can ensure that all variations have been handled the the remaining type of `someEnum` is `never`.
+The return also needs to be `never` to let typescript know that it should not be possible to have none of the if statements match.
 
 ## Selected item
 
@@ -90,14 +144,20 @@ type Document = {
 };
 ```
 
-A new feature requires that `pdfUrl` can be optional, based on which type of document it is.
-In de documentation we read that `pdfUrl` becomes optional and there's a new field added `type` which can be either `pdf` of `on-paper`.
+A new feature requires that some documents can be stored physically somewhere.
+The api now changes in the following ways:
+
+* A new field is added `type` which can be either `pdf` of `on-paper`.
+* A new optional field is added `physicalLocation` which contains information about where the storage location.
+* `pdfUrl` becomes optional, based on which type of document it is.
+
 Like good code monkeys we are, we update our existing type:
 
 ```ts
 type Document = {
 	type: 'pdf' | 'on-paper';
 	pdfUrl?: string;
+	physicalLocation?: string;
 	// ...
 };
 ```
@@ -107,13 +167,16 @@ But now consider the following code:
 ```ts
 declare const document: Document;
 
-if (document.type === 'pdf') showPdf(document.pdfUrl);
+if (document.type === 'pdf')
+	showPdf(document.pdfUrl);
+else if (document.type === 'on-paper')
+	showStorageLocation(document.physicalLocation);
 ```
 
 This won't compile (assuming `showPdf` takes a `string`) because `pdfUrl` has become optional.
 To make this work you'd either have to check that `pdfUrl` is actually present or just unsafly cast it as a `string`.
 The reason we can cast this is because we know that whithin this `if`, the document is of type `pdf` which always has a `pdfUrl`.
-So why don't we explain this to typescript, we can model this extra knowledge in our type:
+So why don't we explain this to typescript and make our type "smart"
 
 ```ts
 type Document =
@@ -124,6 +187,7 @@ type Document =
 	  }
 	| {
 			type: 'on-paper';
+			physicalLocation: string,
 			// ...
 	  };
 ```
@@ -133,12 +197,13 @@ Now this code does compile.
 ```ts
 declare const document: Document;
 
-if (document.type === 'pdf') showPdf(document.pdfUrl);
+if (document.type === 'pdf')
+	showPdf(document.pdfUrl);
+else if (document.type === 'on-paper')
+	showStorageLocation(document.physicalLocation);
 ```
 
-## Enums
-
-### Options array
+## Mapped union types
 
 Consider the following code:
 
@@ -179,28 +244,14 @@ A record is a data structure to map certain keys (enum values) to a correspondin
 By picking the right data structure typecript now tells us if an element in the record has to be added or has been define twice.
 Then a simple `.map(...)` converts to the options we need.
 
-### Exhaustive enum branching
+## Either
 
-Now that we have an enum type we need a way to check every variation of a type.
+Encoding errors in type information requires the user to deal with the error before safely accessing some return value.
 
-```ts
-type SomeEnum = 'a' | 'b';
+https://dev.to/gcanti/getting-started-with-fp-ts-either-vs-validation-5eja
 
-function someFunction(someEnum: SomeEnum): number {
-	if (someEnum === 'a') return 1;
-	if (someEnum === 'b') return 2;
-	return assertNever(someEnum);
-}
-
-function assertNever(value: never): never {
-	throw new Error('Value was not `never`');
-}
-```
-
-You can define a util function `assertNever` to check that you already checked every branch of a type's variations.
-The function `assertNever` takes an argument with the `never` type.
-This way typescript can ensure that all variations have been handled the the remaining type of `someEnum` is `never`.
-The return also needs to be `never` to let typescript know that it should not be possible to have none of the if statements match.
+Because this is a radicaly different way of programming I find it hard to recommend to a lot of people.
+In a team where you know everyone is comfortable with this it can improve your codebase quality.
 
 ## Versioned localstorage demo
 
