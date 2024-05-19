@@ -15,6 +15,6 @@ It will also explain why it's so difficult.
 Before understanding in depth how we experience that physics of moving you first need to understand the physics itself.
 Starting with the most basic thing
 
-$ F = m \cdot a $
+F = m * a
 
 ## The way we experience these physics
