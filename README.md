@@ -5,7 +5,7 @@ You can find a list of design patterns that helped me keep my code clean over th
 
 ## Patterns
 
-* [4th derivative](/4th-derivative/)
+* [3rd derivative](/3rd-derivative/)
 * [Perfect harmony](/perfect-harmony/)
 * [smarter-types-in-typescript](/smarter-types-in-typescript/)
 * [Null vs undefined](/null-vs-undefined/)
