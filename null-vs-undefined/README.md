@@ -146,7 +146,7 @@ const t: Type = {
 
 ### A Best practice
 
-Dealing with the difference between absence and `undefined` can be anoying.
+Dealing with the difference between absence and `undefined` can be annoying.
 That's where `null` comes in, you can use the convention to only explicitly use `null`.
 That way when you get `undefined` somewhere you don't have to wonder if it is a mistake or actually a vallue that has been set to `null`.
 
