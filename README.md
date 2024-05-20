@@ -13,7 +13,7 @@ Take this this blog for what it is, ... gossip.
 
 Without further ado, enjoy my stream of consciousness.
 
-## Patterns
+## Posts
 
 [//]: # (* [The rhythm of conversation]&#40;/the-rhythm-of-conversation/&#41;)
 * [3rd derivative](/3rd-derivative/)
